@@ -7,15 +7,14 @@ from datetime import datetime
 from .models import (Estudiante, Estatus, ProEdu, Situacion, Taller, 
                      NombreTaller, Idioma, TipoIngreso, EstadoServicio,
                      ServicioSocial, PracticaProf, VinculacionAcad,
-                     Ciudad, Pais, Estado)
+                     Ciudad, Pais, Estado, Tutoria, Profesor, HistorialSituacion,
+                     HistorialEstatus)
 
 
 Departamentos = ["ServiciosEscolares.xlsx", "PracticasProfesionales.xlsx",
                  "ServicioSocial.xlsx", "DesarrolloEstudiantil.xlsx",
                  "DesarrolloAdemico.xlsx", "VinculacionAcademica.xlsx",
-                 "Idiomas.xlsx"]
-
-RutaImagenes = "../../DataBase/EvidenciasServicioSocial/"
+                 "Idiomas.xlsx", "Tutoria.xlsx"]
 
 @csrf_exempt
 def RecibirArchivo(request):
@@ -30,8 +29,9 @@ def RecibirArchivo(request):
                 if Archivo.name in Departamentos:
                     # Lee el archivo como objeto panda a partir de la fila nueve
                     #skiprows=0
-                    Data = pd.read_excel(Archivo, skiprows=9)
+                    Data = pd.read_excel(Archivo, skiprows=9, dtype={'matricula': str})
                     # Abrir la función de acuerdo al nombre del Archivo    
+                    
                     Matriculas = Menu(Archivo.name, Data)
                     
                     if Matriculas[0] == True:
@@ -104,6 +104,9 @@ def Menu(Nombre, Datos):
             elif Nombre == Departamentos[6]:
                 ProcesarIdioma(Datos)
                 return True, Matriculas
+            elif Nombre == Departamentos[7]:
+                ProcesarTutoria(Datos)
+                return True, Matriculas
         else:
             return False, Matriculas
 
@@ -134,22 +137,21 @@ def ComprobarEstudiante(Datos):
 o actualiza toda su información en caso de estar registrado
 INPUT: Dataframe que contiene todos los datos del archivo de Servicios Escoalres
 OUTPUT: Ningun valor, solo añade nuevos estudiantes"""
-def ProcesarEstudiante(Datos):    
+def ProcesarEstudiante(Datos):
     for index, row in Datos.iterrows():
-
-        # Se comprueba si ya existe un estudiante registrado
+        print(index)
+        
         try:
-            # En caso de que existe se actualizan sus datos
             estudiante = Estudiante.objects.get(matricula = row['matricula'])
             estudiante.nombre = row['estudiante']
             estudiante.curp = row['curp']
             estudiante.direccion = row['direccion']
             estudiante.email_personal = row['email_personal']
-            estudiante.telefono = row['telefono']
+            estudiante.telefono = str(int(row['telefono']))
             estudiante.iems_procedencia = row['bach_nombre']
             estudiante.generacion = row['generacion']
             estudiante.id_tipo_ingreso = TipoIngreso.objects.get(ingreso = row['tipo_ingreso'])
-            estudiante.fecha_ingreso = row['FECHA']
+            estudiante.fecha_ingreso = row['fecha_ingreso']
             estudiante.discapacidad = TransformarBool(row['discapacidad'], "Si")
             estudiante.nombre_discapacidad = row['nombre_discapacidad']
             estudiante.id_pro_edu = ProEdu.objects.get(nombre_pro_edu = row['programa'])
@@ -164,10 +166,9 @@ def ProcesarEstudiante(Datos):
             estudiante.sexo = TransformarBool(row['sexo'], "M")
             estudiante.hablante_indigena = TransformarBool(row['hablante_lengua'], "Si")
             estudiante.nombre_lengua = row['lengua']
-            estudiante.promedio = row['promedio'] 
-
-            estudiante.save()
-        # En caso contrario crea un nuevo estudiante
+            estudiante.promedio = row['promedio']
+            estudiante.titulado = TransformarBool(row['titulado'], "Si")
+ 
         except Estudiante.DoesNotExist:
             estudiante = Estudiante(
                 matricula = row['matricula'],
@@ -179,7 +180,7 @@ def ProcesarEstudiante(Datos):
                 iems_procedencia = row['bach_nombre'],
                 generacion = row['generacion'],
                 id_tipo_ingreso = TipoIngreso.objects.get(ingreso = row['tipo_ingreso']),
-                fecha_ingreso = row['FECHA'],
+                fecha_ingreso = row['fecha_ingreso'],
                 discapacidad = TransformarBool(row['discapacidad'], "Si"),
                 nombre_discapacidad = row['nombre_discapacidad'],
                 id_pro_edu = ProEdu.objects.get(nombre_pro_edu = row['programa']),
@@ -194,9 +195,23 @@ def ProcesarEstudiante(Datos):
                 sexo = TransformarBool(row['sexo'], "M"),
                 hablante_indigena = TransformarBool(row['hablante_lengua'], "Si"),
                 nombre_lengua = row['lengua'],
-                promedio = row['promedio']
+                promedio = row['promedio'],
+                titulado = TransformarBool(row['titulado'], "Si")
             )
-            estudiante.save()
+    
+        estudiante.save()
+        HistorialSituacion.objects.get_or_create(
+            id_estudiante = Estudiante.objects.get(id_estudiante = estudiante.id_estudiante),
+            id_situacion = Situacion.objects.get(situacion = row['situacion']),
+            fecha_situacion = row['fecha_situacion']
+        )
+
+        HistorialEstatus.objects.get_or_create(
+            id_estudiante = Estudiante.objects.get(id_estudiante = estudiante.id_estudiante),
+            id_estatus = Estatus.objects.get(estatus = row['estado']),
+            fecha_estatus = row['fecha_estado']                
+        ) 
+            
 
 """Función que procesa el archivo de Desarrollo Estudiantil y añade los talleres que cursa cada 
 estudiante a lo largo de su estancia en la universidad.
@@ -207,26 +222,26 @@ def ProcesarTaller(Datos):
       
         tallerComprobacion = Taller.objects.filter(
             id_estudiante = Estudiante.objects.get(matricula = row['matricula']),
-            tipo_taller = TransformarBool(row['tipo de taller'], "Artistico"),
-            id_nombre_taller = NombreTaller.objects.get(nombre = row['nombre del taller']),
+            tipo_taller = TransformarBool(row['tipo_taller'], "Artístico y Cultural"),
+            id_nombre_taller = NombreTaller.objects.get(nombre = row['nombre_taller']),
             representante = TransformarBool(row['representativo'], "Si"),
             selectivo = TransformarBool(row['selectivo'], "Si"),
             acreditado = TransformarBool(row['acreditado'], "Si"),
-            fecha_inicio = row['fechainicio'],
-            fecha_final = row['fechafinal'],
+            fecha_inicio = row['fecha_inicio'],
+            fecha_final = row['fecha_final'],
             club = row['club']
         ).exists()
 
         if not tallerComprobacion:
             taller = Taller(
             id_estudiante = Estudiante.objects.get(matricula = row['matricula']),
-            tipo_taller = TransformarBool(row['tipo de taller'], "Artistico"),
-            id_nombre_taller = NombreTaller.objects.get(nombre = row['nombre del taller']),
+            tipo_taller = TransformarBool(row['tipo_taller'], "Artístico y Cultural"),
+            id_nombre_taller = NombreTaller.objects.get(nombre = row['nombre_taller']),
             representante = TransformarBool(row['representativo'], "Si"),
             selectivo = TransformarBool(row['selectivo'], "Si"),
             acreditado = TransformarBool(row['acreditado'], "Si"),
-            fecha_inicio = row['fechainicio'],
-            fecha_final = row['fechafinal'],
+            fecha_inicio = row['fecha_inicio'],
+            fecha_final = row['fecha_final'],
             club = row['club']
             )
             taller.save()
@@ -246,8 +261,8 @@ def ProcesarIdioma(Datos):
             acreditado = TransformarBool(row['acreditado'], "Si"),
             asesorias = TransformarBool(row['asesorias'], "Si"),
             certificacion = row['certificacion'],
-            fecha_inicio = row['fechainicio'],
-            fecha_final = row['fechafinal']
+            fecha_inicio = row['fecha_inicio'],
+            fecha_final = row['fecha_final']
         ).exists()
 
         if not idiomaComprobacion:
@@ -258,8 +273,8 @@ def ProcesarIdioma(Datos):
                 acreditado = TransformarBool(row['acreditado'], "Si"),
                 asesorias = TransformarBool(row['asesorias'], "Si"),
                 certificacion = row['certificacion'],
-                fecha_inicio = row['fechainicio'],
-                fecha_final = row['fechafinal']
+                fecha_inicio = row['fecha_inicio'],
+                fecha_final = row['fecha_final']
             )
             idioma.save()
 
@@ -297,63 +312,53 @@ def ProcesarServicio(Datos):
             horas_proyecto = row['horas_proyecto'],
             fecha_ultimo_reporte = row['fecha_ultimo_reporte']
         )
-        servicioSocial.save()
+            servicioSocial.save()
         
 
 def ProcesarPracticas(Datos):
     for index, row in Datos.iterrows():
         
-        practicaComprobacion = PracticaProf.objects.filter(
+        PracticaProf.objects.get_or_create(
             id_estudiante = Estudiante.objects.get(matricula = row['matricula']),
             num_practica = row['numero_practica'],
-            fecha_inicio = row['fechainicio'],
-            fecha_final = row['fechafinal'],
+            fecha_inicio = row['fecha_inicio'],
+            fecha_final = row['fecha_final'],
             empresa = row['empresa'],
             telefon_empresa = row['telefono_empresa'],
             contratado = TransformarBool(row['contratado'], "Si")
-        ).exists()
-
-        if not practicaComprobacion:
-            
-            practicaProfesional = PracticaProf(
-                id_estudiante = Estudiante.objects.get(matricula = row['matricula']),
-                num_practica = row['numero_practica'],
-                fecha_inicio = row['fechainicio'],
-                fecha_final = row['fechafinal'],
-                empresa = row['empresa'],
-                telefon_empresa = row['telefono_empresa'],
-                contratado = TransformarBool(row['contratado'], "Si")
-            )
-            
-            practicaProfesional.save()
+        )
 
 def ProcesarVinculacion(Datos):
     for index, row in Datos.iterrows():
 
-        estudiante = Estudiante.objects.get(matricula = row['matricula'])
-        
-        Acreditado = TransformarBool(row['acreditado'], "Si")
-        beneficiario = TransformarBool(row['beca'], "Si")
-        vinculacion = TransformarBool(row['tipo de vinculacion'], "Nacional")        
-        hue = TransformarBool(row['huesped'], "Si")
-        
-
-        ciudad = comprobarCiudad(row['ciudad'], row['estado'], row['pais'])
-
-        vinculacion = VinculacionAcad(
-            id_estudiante = estudiante,
+        vinculacionComprobacion = VinculacionAcad.objects.filter(
+            id_estudiante = Estudiante.objects.get(matricula = row['matricula']),
             institucion = row['institucion'],
-            fecha_inicio = row['fecha inicio'],
-            fecha_final = row['fecha final'],
-            acreditado = Acreditado,
-            beca = beneficiario,
-            nombre_beca = row['nombre de la beca'],
-            tipo_vinculacion = vinculacion,
-            huesped = hue,
-            id_ciudad = ciudad
-        )
+            fecha_inicio = row['fecha_inicio'],
+            fecha_final = row['fecha_final'],
+            acreditado = TransformarBool(row['acreditado'], "Si"),
+            beca = TransformarBool(row['beca'], "Si"),
+            nombre_beca = row['nombre_beca'],
+            tipo_vinculacion = TransformarBool(row['tipo_vinculacion'], "Nacional"),
+            huesped = TransformarBool(row['huesped'], "Si"),
+            id_ciudad = comprobarCiudad(row['ciudad'], row['estado'], row['pais'])
+        ).exists()
 
-        print(vinculacion.id_ciudad.id_estado)
+        if not vinculacionComprobacion:
+            vinculacion = VinculacionAcad(
+                id_estudiante = Estudiante.objects.get(matricula = row['matricula']),
+                institucion = row['institucion'],
+                fecha_inicio = row['fecha_inicio'],
+                fecha_final = row['fecha_final'],
+                acreditado = TransformarBool(row['acreditado'], "Si"),
+                beca = TransformarBool(row['beca'], "Si"),
+                nombre_beca = row['nombre_beca'],
+                tipo_vinculacion = TransformarBool(row['tipo_vinculacion'], "Nacional"),
+                huesped = TransformarBool(row['huesped'], "Si"),
+                id_ciudad = comprobarCiudad(row['ciudad'], row['estado'], row['pais'])
+            ) 
+
+            vinculacion.save()
 
 def comprobarCiudad(city, estate, country):
 
@@ -416,3 +421,28 @@ def comprobarCiudad(city, estate, country):
                 ciudad.save()                
 
     return ciudad
+
+
+def ProcesarTutoria(Datos):
+    for index, row in Datos.iterrows():
+
+        print(row['profesor'])        
+        tutoriaComprobacion = Tutoria.objects.filter(
+            tipo_tutoria = TransformarBool(row['tipo_tutoria'], "Individual"),
+            id_estudiante = Estudiante.objects.get(matricula = row['matricula']),
+            motivo_tutoria = row['motivo'],
+            fecha_inicio = row['fecha_inicio'],
+            fecha_final = row['fecha_final']
+        ).exists()
+
+        if not tutoriaComprobacion:
+            tutoria = Tutoria(
+                tipo_tutoria = TransformarBool(row['tipo_tutoria'], "Individual"),
+                id_profesor = Profesor.objects.get(id_profesor = row['profesor']),
+                id_estudiante = Estudiante.objects.get(matricula = row['matricula']),
+                motivo_tutoria = row['motivo'],
+                fecha_inicio = row['fecha_inicio'],
+                fecha_final = row['fecha_final']
+            )
+            
+            tutoria.save()

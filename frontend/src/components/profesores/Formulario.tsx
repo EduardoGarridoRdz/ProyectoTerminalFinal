@@ -1,340 +1,608 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
-  TextField,
-  Button,
-  Box,
-  Typography,
-  Container,
-  Paper,
-  MenuItem,
-  Select,
-  FormControl,
-  InputLabel,
-  Autocomplete,
-  Grid,
-  SelectChangeEvent,
+    TextField,
+    MenuItem,
+    Button,
+    Typography,
+    Box,
+    Container,
+    Paper,
+    Grid,
+    Checkbox,
+    FormControlLabel,
+    FormControl,
+    InputLabel,
+    Select,
+    SelectChangeEvent,
+    Snackbar,
+    Alert,
 } from "@mui/material";
 
-interface FormData {
-  nombreProfesor: string;
-  proyectoNombre: string;
-  tipoEstancia: string;
-  asesoria: string;
-  estancia: string;
-  tutorias: string;
-  investigacion: string;
-  capacitacion: string;
-  tipoCapacitacion: string;
-  evento: string;
-  faseProyecto: string;
-}
+import axios from "axios";
 
-const nombresProfesores = [
-  "Dr. Mauro Felipe Berumen Calderón",
-  "Dr. César Yáñez Santamaría",
-  "Dra. Angelica Sterling Zozoaga",
-  "Dr. Edgar Fernando Peña Torres",
-  "Dr. Héctor Santana Duarte",
-  "Mtra. Guadalupe Carolina Moreno Ortíz",
-  "Mtra. Ana Victoria Flores Vega",
-  "Mtro. Juan Manuel Carvajal Sánchez",
-  "Mtra. Elena Xitlali Gamarra Hernández",
-  "Mtro. Guillermo Álvarez Estrada",
-  "Mtro. Bernardo Lopez Rivera",
-  "Mtra. Sonia Beatriz Pacheco Castro",
-  "Dr. José Francisco Domínguez Estrada",
-  "Dr. Ricardo Sonda de la Rosa",
-  "Dr. Pedro Moncada Jiménez",
-  "Dr. Ventura Enrique Mota Flores",
-  "Dr. Oswaldo Gallegos Jiménez",
-  "Dr. Jorge Mendoza Lara",
-  "Dra. Sandra Guerra Mondragon",
-  "Mtra. Damayanti Estolano Cristerna",
-  "Mtra. Consepción Escalona Hernández",
-  "Mtra. Claudia Inés Martinez",
-  "Dr. Juan Bautista Boggio Vázquez",
-  "Dr. Abelardo Castillo Galeana",
-  "Dra. Rosiluz Ceballos Povedano",
-  "Dr. Enrique Corona Sandoval",
-  "Mtra. Wendy Sebastiana Hernández Del Puerto",
-  "Dra. Lorena Hernández Von Wobeser",
-  "Mtro. Francisco José May Hernández",
-  "Mtro. Farid Alfonso Pool Estrada",
-  "Dra. Carmen Lilia Cervantes Bello",
-  "Dr. Sergio Lagunas Puls",
-  "Dra. Elda Leticia León Vite",
-  "Dra. Christine Elizabeth Mccoy Cador",
-  "Dr. Miguel Ángel Olivares Urbina",
-  "Mtra. Brenda Lizeth Soto Pérez",
-  "Mtro. Jorge Vallejo Filoteo",
-  "Dra. Lucila Zárraga Cano",
-  "Dr. Rodrigo Leonardo Guillen Breton",
-  "Dr. Juan Francisco Bárcenas Graniel",
-  "Dra. Estela Cerezo Acevedo",
-  "Dr. Víctor Manuel Romero Medina",
-  "Dra. Laura Margarita Hernández Terrones",
-  "Mtra. Nancy Aguas García",
-  "Dra. Jessica Carmin Mendiola Fuentes",
-  "Dra. Erika Zavala López",
-  "Dr. Héctor Fernando Gómez García",
-  "Dr. Ismael Domínguez Jiménez",
-  "Dr. César Hernández Brito",
-  "Dra. Candelaria Elizabeth Sansores Pérez",
-  "Mtro. Francisco Manzano Pinzón",
-  "Dra. Marina Isabel García Rosas",
-  "Mtra. Diana del Pilar Cobos del Angel",
-  "Dr. Antonio José Sucre Salas",
-  "Dra. Mirbella Gallareta Negrón",
-  "Dr. Alejandro Charbel Cárdenas León",
-  "Dr. Juan Felipe Pérez Vázquez",
-  "Mtro. Nicolás Francisco Mateo Díaz",
-  "Mtro. Jarmen Said Virgen Suárez",
-  "Dr. Francisco López Monzalvo",
-  "Dr. Mijaíl Armenta Aranceta",
-  "Dr. Víctor Cantero Flores",
-  "Mtro. Victor Manuel Peralta Del Riego",
-  "Dra. Alejandra Cazal Ferreira",
-  "Mtro. Eduardo Suárez Díaz Barriga",
-  "Dra. María del Pilar Jiménez Márquez",
-  "Mtro. Roberto Parra Dorantes",
-  "Dra. Sabrina Ivonne Rodríguez Ogaz",
-  "Mtra. Graciela Vázquez Flores",
-  "Mtra. Pilivet Aguiar Alayola",
-  "Dr. Oscar Miguel Reyes Hernández",
-  "Dra. Minerva Alavez San Pedro",
-  "Dra. Libertad Fidelina Díaz Molina",
-  "Dr. José Felipe Reyes Miranda",
-];
+const FormularioRH = () => {
+    const [formData, setFormData] = useState({
+        departamento: "",
+        programa: "",
+        nombreProfesor: "",
+        correoProfesor: "",
+        tipoProfesor: "",
+        apellidoPaternoProfesor: "",
+        apellidoMaternoProfesor: "",
+        sexo: "",
+        grado: "",
+        institucionTitulo: "",
+        fechaGradoInicio: "",
+        fechaGradoInicioEstudio: "",
+        fechaGradoFinal: "",
+        estudiaDoctorado: false,
+        jefeDepartamento: false,
+        institucionDoctorado: "",
+        perfilPRODEP: false,
+        vigenciaPerfilPRODEP: "",
+        miembroSNII: false,
+        nivelSNII: "",
+        anioIngresoSNII: "",
+    });
 
-const Formulario = () => {
-  const [formData, setFormData] = useState<FormData>({
-    nombreProfesor: "",
-    proyectoNombre: "",
-    tipoEstancia: "",
-    asesoria: "",
-    estancia: "",
-    tutorias: "",
-    investigacion: "",
-    capacitacion: "",
-    tipoCapacitacion: "",
-    evento: "",
-    faseProyecto: "",
-  });
+    const [openSnackbar, setOpenSnackbar] = useState(false);
+    const [snackbarMessage, setSnackbarMessage] = useState("");
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
-  };
+    const [grado_academico, setGradoAcademico] = useState<
+        { id: number; nombre: string }[]
+    >([]);
 
-  const handleSelectChange = (e: SelectChangeEvent, field: keyof FormData) => {
-    setFormData({ ...formData, [field]: e.target.value });
-  };
+    useEffect(() => {
+        axios
+            .get("http://localhost:8000/api/grado_academico/")
+            .then((res) => {
+                const data = res.data.map((grad: any) => ({
+                    id: grad.id_grado_academico,
+                    nombre: grad.grado_academico,
+                }));
+                setGradoAcademico(data);
+            })
+            .catch((err) => {
+                console.error("Error al obtener grado academico", err);
+            });
+    }, []);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    try {
-      const response = await fetch("http://127.0.0.1:8000/api/guardar/", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(formData),
-      });
-      
+    const [sexo, setSexo] = useState<{ id: number; nombre: string }[]>([]);
 
+    useEffect(() => {
+        axios
+            .get("http://localhost:8000/api/sexo/")
+            .then((res) => {
+                const data = res.data.map((sex: any) => ({
+                    id: sex.id_sexo,
+                    nombre: sex.nombre_sexo,
+                }));
+                setSexo(data);
+            })
+            .catch((err) => {
+                console.error("Error al obtener sexo", err);
+            });
+    }, []);
 
-      if (response.ok) {
-        alert("Formulario enviado correctamente");
-        setFormData({
-          nombreProfesor: "",
-          proyectoNombre: "",
-          tipoEstancia: "",
-          asesoria: "",
-          estancia: "",
-          tutorias: "",
-          investigacion: "",
-          capacitacion: "",
-          tipoCapacitacion: "",
-          evento: "",
-          faseProyecto: "",
-        });
-      } else {
-        alert("Hubo un error al enviar el formulario");
-      }
-    } catch (error) {
-      console.error("Error al enviar el formulario:", error);
-      alert("Error al enviar el formulario");
-    }
-  };
+    const [departamentos, setDepartamentos] = useState<
+        { id: number; nombre: string }[]
+    >([]);
 
-  return (
-    <Container maxWidth="md">
-      <Paper elevation={3} sx={{ p: 4 }}>
-        <Typography variant="h5" align="center" gutterBottom>
-          Información Personal Académica
-        </Typography>
-        <form onSubmit={handleSubmit}>
-          <Grid container spacing={2} direction="column">
-            <Grid item xs={12}>
-              <Autocomplete
-                options={nombresProfesores}
-                value={formData.nombreProfesor}
-                onChange={(event, newValue) =>
-                  setFormData({
-                    ...formData,
-                    nombreProfesor: newValue || "",
-                  })
+    useEffect(() => {
+        axios
+            .get("http://localhost:8000/api/departamentos/")
+            .then((res) => {
+                const data = res.data.map((dep: any) => ({
+                    id: dep.id_departamento,
+                    nombre: dep.nombre_departamento,
+                }));
+                setDepartamentos(data);
+            })
+            .catch((err) => {
+                console.error("Error al obtener departamentos", err);
+            });
+    }, []);
+
+    const [programa_educativo, setProgramaEducativo] = useState<
+        { id: number; nombre: string }[]
+    >([]);
+
+    useEffect(() => {
+        axios
+            .get("http://localhost:8000/api/programa_educativo/")
+            .then((res) => {
+                const data = res.data.map((prog: any) => ({
+                    id: prog.id_programa_educativo,
+                    nombre: prog.nombre_programa_educativo,
+                }));
+                setProgramaEducativo(data);
+            })
+            .catch((err) => {
+                console.error("Error al obtener programa educativo", err);
+            });
+    }, []);
+
+    const [tipo_profesor, setTipoProfesor] = useState<
+        { id: number; nombre: string }[]
+    >([]);
+
+    useEffect(() => {
+        axios
+            .get("http://localhost:8000/api/tipo_profesor/")
+            .then((res) => {
+                const data = res.data.map((tipo: any) => ({
+                    id: tipo.id_tipo_profesor,
+                    nombre: tipo.tipo_profesor,
+                }));
+                setTipoProfesor(data);
+            })
+            .catch((err) => {
+                console.error("Error al obtener programa educativo", err);
+            });
+    }, []);
+
+    const handleChange = (
+        e:
+            | React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+            | SelectChangeEvent
+    ) => {
+        const { name, value } = e.target;
+        setFormData({ ...formData, [name]: value });
+    };
+
+    const handleCheckboxChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const { name, checked } = e.target;
+        setFormData({ ...formData, [name]: checked });
+    };
+
+    const handleSubmit = (e: React.FormEvent) => {
+        e.preventDefault();
+
+        const id_grado = grado_academico.find(
+            (g) => g.nombre === formData.grado
+        )?.id;
+        const id_programa = programa_educativo.find(
+            (p) => p.nombre === formData.programa
+        )?.id;
+        const id_departamento = departamentos.find(
+            (d) => d.nombre === formData.departamento
+        )?.id;
+        const id_tipo_profesor = tipo_profesor.find(
+            (t) => t.nombre === formData.tipoProfesor
+        )?.id;
+        const sexo_nombre = sexo.find((s) => s.nombre === formData.sexo)?.nombre;
+
+        const payloadProfesor = {
+            nombre_profesor: formData.nombreProfesor,
+            apellido_pat_profesor: formData.apellidoPaternoProfesor,
+            apellido_mat_profesor: formData.apellidoMaternoProfesor,
+            correo_profesor: formData.correoProfesor,
+            id_grado_academico: id_grado,
+            id_programa_educativo: id_programa,
+            id_departamento: id_departamento,
+            jefe_departamento: formData.jefeDepartamento,
+            id_tipo_profesor: id_tipo_profesor,
+            activo: true,
+            sexo: sexo_nombre,
+        };
+
+        axios
+            .post("http://localhost:8000/api/profesor/", payloadProfesor)
+            .then((res) => {
+                const payloadEstudios = {
+                    id_profesor: res.data.id_profesor,
+                    grado_actual: formData.grado,
+                    grado_estudiando: formData.estudiaDoctorado ? "Doctorado" : "Ninguno",
+                    fecha_inicio: formData.fechaGradoInicio,
+                    fecha_final: formData.fechaGradoFinal,
+                    nombre_institucion: formData.institucionTitulo,
+                    nombre_institucion_est: formData.estudiaDoctorado
+                        ? formData.institucionDoctorado
+                        : "Ninguno",
+                    fecha_inicio_est: formData.estudiaDoctorado
+                        ? formData.fechaGradoInicioEstudio
+                        : null,
+                };
+
+                return axios.post(
+                    "http://localhost:8000/api/estudios/",
+                    payloadEstudios
+                );
+            })
+            .then((resEstudios) => {
+                const payloadInfoAdicional = {
+                    id_profesor: resEstudios.data.id_profesor,
+                    perfil_prodep: formData.perfilPRODEP,
+                    vigencia_prodep: formData.vigenciaPerfilPRODEP || null,
+                    miembro_snii_seii: formData.miembroSNII,
+                    nivel_snii_seii: formData.nivelSNII || null,
+                    anio_ingreso_snii_seii: formData.anioIngresoSNII || null,
+                };
+                if (formData.estudiaDoctorado) {
+                    return axios.post(
+                        "http://localhost:8000/api/informacion_adicional/",
+                        payloadInfoAdicional
+                    );
+                } else {
+                    return Promise.resolve(resEstudios);
                 }
-                renderInput={(params) => (
-                  <TextField
-                    {...params}
-                    label="Nombre del Profesor"
-                    variant="outlined"
-                    fullWidth
-                    required
-                  />
-                )}
-              />
-            </Grid>
+            })
+            .then(() => {
+                setSnackbarMessage("Información registrada correctamente.");
+                setOpenSnackbar(true);
+                setFormData({
+                    departamento: "",
+                    programa: "",
+                    nombreProfesor: "",
+                    correoProfesor: "",
+                    tipoProfesor: "",
+                    apellidoPaternoProfesor: "",
+                    apellidoMaternoProfesor: "",
+                    sexo: "",
+                    grado: "",
+                    institucionTitulo: "",
+                    fechaGradoInicio: "",
+                    fechaGradoInicioEstudio: "",
+                    fechaGradoFinal: "",
+                    estudiaDoctorado: false,
+                    jefeDepartamento: false,
+                    institucionDoctorado: "",
+                    perfilPRODEP: false,
+                    vigenciaPerfilPRODEP: "",
+                    miembroSNII: false,
+                    nivelSNII: "",
+                    anioIngresoSNII: "",
+                });
+            })
+            .catch((err) => {
+                if (err.response) {
+                    console.error("Error:", err.response.data);
+                } else {
+                    console.error("Error:", err);
+                }
+            });
+    };
 
-            <Grid item xs={12}>
-              <TextField
-                label="Nombre del Proyecto"
-                variant="outlined"
-                fullWidth
-                name="proyectoNombre"
-                value={formData.proyectoNombre}
-                onChange={handleInputChange}
-                required
-              />
-            </Grid>
+    return (
+        <Container maxWidth="md">
+            <Paper sx={{ p: 4 }}>
+                <Typography variant="h5" gutterBottom align="center">
+                    Información de Recursos Humanos
+                </Typography>
+                <Typography variant="h5" gutterBottom align="center">
+                    <strong>Profesor</strong>
+                </Typography>
+                <br />
+                <form onSubmit={handleSubmit}>
+                    <Grid container spacing={2}>
+                        <Grid item xs={12} sm={6}>
+                            <FormControl fullWidth required>
+                                <InputLabel>Departamento Académico</InputLabel>
+                                <Select
+                                    name="departamento"
+                                    value={formData.departamento}
+                                    label="Departamento Académico"
+                                    onChange={handleChange}
+                                >
+                                    {departamentos.map((dep) => (
+                                        <MenuItem key={dep.id} value={dep.nombre}>
+                                            {dep.nombre}
+                                        </MenuItem>
+                                    ))}
+                                </Select>
+                            </FormControl>
+                        </Grid>
 
-            <Grid item xs={12}>
-              <FormControl fullWidth>
-                <InputLabel id="tipoEstanciaLabel">Tipo de Estancia</InputLabel>
-                <Select
-                  labelId="tipoEstanciaLabel"
-                  value={formData.tipoEstancia}
-                  onChange={(e) => handleSelectChange(e, "tipoEstancia")}
-                  label="Tipo de Estancia"
+                        <Grid item xs={12} sm={6}>
+                            <FormControl fullWidth required>
+                                <InputLabel>Programa Educativo</InputLabel>
+                                <Select
+                                    name="programa"
+                                    value={formData.programa}
+                                    label="Programa Educativo"
+                                    onChange={handleChange}
+                                >
+                                    {programa_educativo.map((prog) => (
+                                        <MenuItem key={prog.id} value={prog.nombre}>
+                                            {prog.nombre}
+                                        </MenuItem>
+                                    ))}
+                                </Select>
+                            </FormControl>
+                        </Grid>
+
+                        <Grid item xs={12}>
+                            <TextField
+                                name="nombreProfesor"
+                                value={formData.nombreProfesor}
+                                onChange={handleChange}
+                                fullWidth
+                                label="Nombre (s) del Profesor"
+                                required
+                            />
+                        </Grid>
+
+                        <Grid item xs={12} sm={6}>
+                            <TextField
+                                name="apellidoPaternoProfesor"
+                                value={formData.apellidoPaternoProfesor}
+                                onChange={handleChange}
+                                fullWidth
+                                label="Apellido Paterno"
+                                required
+                            />
+                        </Grid>
+
+                        <Grid item xs={12} sm={6}>
+                            <TextField
+                                name="apellidoMaternoProfesor"
+                                value={formData.apellidoMaternoProfesor}
+                                onChange={handleChange}
+                                fullWidth
+                                label="Apellido Materno"
+                                required
+                            />
+                        </Grid>
+
+                        <Grid item xs={12} sm={6}>
+                            <TextField
+                                name="correoProfesor"
+                                value={formData.correoProfesor}
+                                onChange={handleChange}
+                                fullWidth
+                                label="Correo del Profesor"
+                                required
+                            />
+                        </Grid>
+
+                        <Grid item xs={12} sm={6}>
+                            <FormControl fullWidth required>
+                                <InputLabel>Tipo de Profesor</InputLabel>
+                                <Select
+                                    name="tipoProfesor"
+                                    value={formData.tipoProfesor}
+                                    label="Tipo de Profesor"
+                                    onChange={handleChange}
+                                >
+                                    {tipo_profesor.map((tipo) => (
+                                        <MenuItem key={tipo.id} value={tipo.nombre}>
+                                            {tipo.nombre}
+                                        </MenuItem>
+                                    ))}
+                                </Select>
+                            </FormControl>
+                        </Grid>
+
+                        <Grid item xs={12} sm={6}>
+                            <FormControl fullWidth required>
+                                <InputLabel>Sexo</InputLabel>
+                                <Select
+                                    name="sexo"
+                                    value={formData.sexo}
+                                    label="Sexo"
+                                    onChange={handleChange}
+                                >
+                                    {sexo.map((sex) => (
+                                        <MenuItem key={sex.id} value={sex.nombre}>
+                                            {sex.nombre}
+                                        </MenuItem>
+                                    ))}
+                                </Select>
+                            </FormControl>
+                        </Grid>
+
+                        <Grid item xs={12} sm={6}>
+                            <FormControl fullWidth required>
+                                <InputLabel>Grado Académico Actual</InputLabel>
+                                <Select
+                                    name="grado"
+                                    value={formData.grado}
+                                    label="Grado Académico Actual"
+                                    onChange={handleChange}
+                                >
+                                    {grado_academico.map((grad) => (
+                                        <MenuItem key={grad.id} value={grad.nombre}>
+                                            {grad.nombre}
+                                        </MenuItem>
+                                    ))}
+                                </Select>
+                            </FormControl>
+                        </Grid>
+
+                        <Grid item xs={12}>
+                            <TextField
+                                name="institucionTitulo"
+                                value={formData.institucionTitulo}
+                                onChange={handleChange}
+                                fullWidth
+                                label="Institución que otorgó el título"
+                                required
+                            />
+                        </Grid>
+
+                        <Grid item xs={12} sm={6}>
+                            <FormControl fullWidth required>
+                                <TextField
+                                    type="date"
+                                    name="fechaGradoInicio"
+                                    value={formData.fechaGradoInicio}
+                                    onChange={handleChange}
+                                    label="Fecha de inicio del grado"
+                                    fullWidth
+                                    InputLabelProps={{ shrink: true }}
+                                    required
+                                />
+                            </FormControl>
+                        </Grid>
+
+                        <Grid item xs={12} sm={6}>
+                            <TextField
+                                type="date"
+                                name="fechaGradoFinal"
+                                value={formData.fechaGradoFinal}
+                                onChange={handleChange}
+                                label="Fecha de obtención del grado"
+                                fullWidth
+                                InputLabelProps={{ shrink: true }}
+                                required
+                            />
+                        </Grid>
+
+                        <Grid item xs={12}>
+                            <FormControlLabel
+                                control={
+                                    <Checkbox
+                                        checked={formData.jefeDepartamento}
+                                        onChange={handleCheckboxChange}
+                                        name="jefeDepartamento"
+                                    />
+                                }
+                                label="¿Es jefe de departamento?"
+                            />
+                        </Grid>
+
+                        <Grid item xs={12}>
+                            <FormControlLabel
+                                control={
+                                    <Checkbox
+                                        checked={formData.estudiaDoctorado}
+                                        onChange={handleCheckboxChange}
+                                        name="estudiaDoctorado"
+                                    />
+                                }
+                                label="¿Está estudiando un doctorado?"
+                            />
+                        </Grid>
+
+                        {formData.estudiaDoctorado && (
+                            <Grid item xs={12} sm={6}>
+                                <FormControl fullWidth required>
+                                    <TextField
+                                        type="date"
+                                        name="fechaGradoInicioEstudio"
+                                        value={formData.fechaGradoInicioEstudio}
+                                        onChange={handleChange}
+                                        label="Fecha de inicio del grado"
+                                        fullWidth
+                                        InputLabelProps={{ shrink: true }}
+                                        required
+                                    />
+                                </FormControl>
+                            </Grid>
+                        )}
+
+                        {formData.estudiaDoctorado && (
+                            <Grid item xs={12}>
+                                <TextField
+                                    name="institucionDoctorado"
+                                    value={formData.institucionDoctorado}
+                                    onChange={handleChange}
+                                    fullWidth
+                                    label="Institución donde estudia el doctorado"
+                                />
+                            </Grid>
+                        )}
+
+                        {formData.estudiaDoctorado && (
+                            <Grid item xs={12}>
+                                <Typography variant="subtitle1" fontWeight="bold">
+                                    Información adicional
+                                </Typography>
+                            </Grid>
+                        )}
+
+                        {formData.estudiaDoctorado && (
+                            <Grid item xs={12} sm={6}>
+                                <FormControlLabel
+                                    control={
+                                        <Checkbox
+                                            checked={formData.perfilPRODEP}
+                                            onChange={handleCheckboxChange}
+                                            name="perfilPRODEP"
+                                        />
+                                    }
+                                    label="¿Cuenta con Perfil PRODEP?"
+                                />
+                            </Grid>
+                        )}
+
+                        {formData.perfilPRODEP && (
+                            <Grid item xs={12} sm={6}>
+                                <TextField
+                                    name="vigenciaPerfilPRODEP"
+                                    value={formData.vigenciaPerfilPRODEP}
+                                    onChange={handleChange}
+                                    fullWidth
+                                    label="Vigencia del Perfil PRODEP"
+                                />
+                            </Grid>
+                        )}
+
+                        {formData.estudiaDoctorado && (
+                            <Grid item xs={12}>
+                                <FormControlLabel
+                                    control={
+                                        <Checkbox
+                                            checked={formData.miembroSNII}
+                                            onChange={handleCheckboxChange}
+                                            name="miembroSNII"
+                                        />
+                                    }
+                                    label="¿Es miembro del SNII o SEII?"
+                                />
+                            </Grid>
+                        )}
+
+                        {formData.miembroSNII && (
+                            <Grid item xs={12} sm={6}>
+                                <TextField
+                                    name="nivelSNII"
+                                    value={formData.nivelSNII}
+                                    onChange={handleChange}
+                                    fullWidth
+                                    label="Nivel SNI / SEII"
+                                />
+                            </Grid>
+                        )}
+
+                        {formData.miembroSNII && (
+                            <Grid item xs={12} sm={6}>
+                                <TextField
+                                    name="anioIngresoSNII"
+                                    value={formData.anioIngresoSNII}
+                                    onChange={handleChange}
+                                    fullWidth
+                                    label="Año de ingreso a SNI / SEII"
+                                />
+                            </Grid>
+                        )}
+
+                        <Grid item xs={12}>
+                            <Box textAlign="center">
+                                <Button type="submit" variant="contained">
+                                    Enviar Información
+                                </Button>
+                            </Box>
+                        </Grid>
+                    </Grid>
+                </form>
+            </Paper>
+            <Snackbar
+                open={openSnackbar}
+                autoHideDuration={6000}
+                onClose={() => setOpenSnackbar(false)}
+                anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+            >
+                <Alert
+                    onClose={() => setOpenSnackbar(false)}
+                    severity="success"
+                    sx={{ width: "100%" }}
                 >
-                  <MenuItem value="EstanciaAcadémica">Estancia Académica</MenuItem>
-                  <MenuItem value="EstanciaLaboral">Estancia Laboral</MenuItem>
-                  <MenuItem value="EstanciaDeInvestigación">Estancia de Investigación</MenuItem>
-                </Select>
-              </FormControl>
-            </Grid>
-
-            <Grid item xs={12}>
-              <TextField
-                label="Asesoría"
-                variant="outlined"
-                fullWidth
-                name="asesoria"
-                value={formData.asesoria}
-                onChange={handleInputChange}
-              />
-            </Grid>
-
-            <Grid item xs={12}>
-              <TextField
-                label="Estancia"
-                variant="outlined"
-                fullWidth
-                name="estancia"
-                value={formData.estancia}
-                onChange={handleInputChange}
-              />
-            </Grid>
-
-            <Grid item xs={12}>
-              <TextField
-                label="Tutoría"
-                variant="outlined"
-                fullWidth
-                name="tutorias"
-                value={formData.tutorias}
-                onChange={handleInputChange}
-              />
-            </Grid>
-
-            <Grid item xs={12}>
-              <TextField
-                label="Investigación"
-                variant="outlined"
-                fullWidth
-                name="investigacion"
-                value={formData.investigacion}
-                onChange={handleInputChange}
-              />
-            </Grid>
-
-            <Grid item xs={12}>
-              <TextField
-                label="Capacitación"
-                variant="outlined"
-                fullWidth
-                name="capacitacion"
-                value={formData.capacitacion}
-                onChange={handleInputChange}
-              />
-            </Grid>
-
-            <Grid item xs={12}>
-              <FormControl fullWidth>
-                <InputLabel id="tipoCapacitacionLabel">Tipo de Capacitación</InputLabel>
-                <Select
-                  labelId="tipoCapacitacionLabel"
-                  value={formData.tipoCapacitacion}
-                  onChange={(e) => handleSelectChange(e, "tipoCapacitacion")}
-                  label="Tipo de Capacitación"
-                >
-                  <MenuItem value="CapacitacionOnline">Capacitación Online</MenuItem>
-                  <MenuItem value="CapacitacionPresencial">Capacitación Presencial</MenuItem>
-                  <MenuItem value="CapacitacionMixta">Capacitación Mixta</MenuItem>
-                </Select>
-              </FormControl>
-            </Grid>
-
-            <Grid item xs={12}>
-              <TextField
-                label="Evento Académico"
-                variant="outlined"
-                fullWidth
-                name="evento"
-                value={formData.evento}
-                onChange={handleInputChange}
-              />
-            </Grid>
-
-            <Grid item xs={12}>
-              <FormControl fullWidth>
-                <InputLabel id="faseProyectoLabel">Fase del Proyecto</InputLabel>
-                <Select
-                  labelId="faseProyectoLabel"
-                  value={formData.faseProyecto}
-                  onChange={(e) => handleSelectChange(e, "faseProyecto")}
-                  label="Fase del Proyecto"
-                >
-                  <MenuItem value="1">1</MenuItem>
-                  <MenuItem value="2">2</MenuItem>
-                  <MenuItem value="3">3</MenuItem>
-                </Select>
-              </FormControl>
-            </Grid>
-
-            <Grid item xs={12}>
-              <Box textAlign="center" mt={2}>
-                <Button type="submit" variant="contained" color="primary">
-                  Enviar Formulario
-                </Button>
-              </Box>
-            </Grid>
-          </Grid>
-        </form>
-      </Paper>
-    </Container>
-  );
+                    {snackbarMessage}
+                </Alert>
+            </Snackbar>
+        </Container>
+    );
 };
 
-export default Formulario;
+export default FormularioRH;

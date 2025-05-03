@@ -1,7 +1,8 @@
 # miapp/serializers.py
 from rest_framework import serializers
 from datetime import date  ## nuev
- 
+from django.contrib.auth import authenticate
+from django.utils.translation import gettext_lazy as _
 from .models import Profesor, GradoAcademico, ProEdu, TipoProfesor
 
 
@@ -99,15 +100,40 @@ class VinculacionAcadSerializer(serializers.ModelSerializer):
         model = VinculacionAcad
         fields = '__all__'
 
+class HistorialSituacionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = HistorialSituacion
+        fields = '__all__'
 
-
+class HistorialEstatusSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = HistorialEstatus
+        fields = '__all__'
 
 """ <----------------------- PROFESORES --------------------------> """
 
+class InformacionAdicionalSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = InformacionAdicional
+        fields = '__all__'
+        read_only_fields = ['id_informacion_adicional']
+
+class EstudiosSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Estudios
+        fields = '__all__'
+        read_only_fields = ['id_estudios']
+        
 class ProfesorSerializer(serializers.ModelSerializer):
+    grado_academico_nombre = serializers.CharField(source='id_grado_academico.grado_academico', read_only=True)
+    nombre_programa_educativo = serializers.CharField(source='id_programa_educativo.nombre_programa_educativo', read_only=True)
+    tipo_profesor = serializers.CharField(source='id_tipo_profesor.tipo_profesor', read_only=True)
+    nombre_departamento = serializers.CharField(source='id_departamento.nombre_departamento', read_only=True)
+
     class Meta:
         model = Profesor
         fields = '__all__'
+        read_only_fields = ['id_profesor']
 
 class ProyectoSerializer(serializers.ModelSerializer):
     class Meta:
@@ -223,12 +249,7 @@ class GradoAcademicoSerializer(serializers.ModelSerializer):
     class Meta:
         model = GradoAcademico
         fields = '__all__'
-
-class EstudiosSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Estudios
-        fields = '__all__'
-
+        
 class GradoAsesoriaSerializer(serializers.ModelSerializer):
     class Meta:
         model = GradoAsesoria
@@ -239,4 +260,85 @@ class ActividadesinactivoSerializer(serializers.ModelSerializer):
         model = Actividadesinactivo
         fields = '__all__'
 
+class DepartamentoSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Departamento
+        fields = '__all__'
+
+class ProgramaEducativoSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ProgramaEducativo
+        fields = '__all__'
+
+class SexoSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Sexo
+        fields = '__all__'
+
+class FormacionIntegralEventoSerializer(serializers.ModelSerializer):    
+    class Meta:
+        model = FormacionIntegralEvento
+        fields = '__all__'
+        read_only_fields = ['id_formacion_integral_evento']
+
+class ActividadVinculacionSerializer(serializers.ModelSerializer):
+    nombre_profesor = serializers.CharField(source='id_profesor.nombre_profesor', read_only=True)
+
+    class Meta:
+        model = ActividadVinculacion
+        fields = '__all__'
+        read_only_fields = ['id_actividad_vinculacion']
+
+class ProyectoTesisSerializer(serializers.ModelSerializer):
+    nombre_profesor = serializers.CharField(source='id_profesor.nombre_profesor', read_only=True)
+    fase = serializers.CharField(source='id_fase_proyecto.fase', read_only=True)
     
+    class Meta:
+        model = ProyectoTesis
+        fields = '__all__'
+        read_only_fields = ['id_proyecto_tesis']
+
+class FormularioCapacitacionSerializer(serializers.ModelSerializer):
+    nombre_profesor = serializers.CharField(source='id_profesor.nombre_profesor', read_only=True)
+
+    class Meta:
+        model = FormularioCapacitacion
+        fields = '__all__'
+        read_only_fields = ['id_formulario_capacitacion']
+
+class ProyectoInvestigacionSerializer(serializers.ModelSerializer):
+    nombre_profesor = serializers.CharField(source='id_profesor.nombre_profesor', read_only=True)    
+    
+    class Meta:
+        model = ProyectoInvestigacion
+        fields = '__all__'
+        read_only_fields = ['id_proyecto_investigacion']
+
+class ProductoInvestigacionSerializer(serializers.ModelSerializer):
+    nombre_profesor = serializers.CharField(source='id_profesor.nombre_profesor', read_only=True)    
+    nombre_tipo_producto = serializers.CharField(source='id_tipo_producto.tipo_producto', read_only=True)
+    
+    class Meta:
+        model = ProductoInvestigacion
+        fields = '__all__'
+        read_only_fields = ['id_producto_investigacion']
+
+""" <----------------------- Usuarios --------------------------> """
+class UsuarioSerializer(serializers.ModelSerializer):
+    contrasena = serializers.StringRelatedField(source='id_contrasena.contrasena')
+    tipo_usuario = serializers.StringRelatedField(source='id_tipo_usuario.tipo')
+    departamento = serializers.StringRelatedField(source='id_departamento.nombre_departamento')
+    class Meta:
+        model = Usuario
+        fields = ['id_usuario','nombre', 'apellido_pat', 'apellido_mat', 'correo', 'contrasena', 'tipo_usuario', 'departamento']
+
+class TipoUsuarioSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Tipousuarios
+        fields = '__all__'
+
+class DepartamentosSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Departamento
+        fields = '__all__'
+

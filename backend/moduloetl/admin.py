@@ -12,6 +12,7 @@ admin.site.register(Egresado)
 admin.site.register(Idioma)
 admin.site.register(EstadoServicio)
 admin.site.register(Usuario)
+admin.site.register(HistorialSituacion)
 
 """ <--- Registro de modelos de PROFESORES ---> """
 admin.site.register(Profesor)

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useRef } from "react";
 import { Button } from "@mui/material";
 import ArticleIcon from "@mui/icons-material/Article";
 import { styled } from "@mui/material/styles";
@@ -24,6 +24,7 @@ const BigButton = styled(Button)({
 });
 
 const DarFormato: React.FC = () => {
+  const fileInputRef = useRef<HTMLInputElement>(null);
   // Función para mandar el archivo al backend //
   const handleFileChange = async (
     event: React.ChangeEvent<HTMLInputElement>
@@ -61,10 +62,14 @@ const DarFormato: React.FC = () => {
       const url = window.URL.createObjectURL(archivoFormateado);
       const a = document.createElement("a");
       a.href = url;
-      a.download = "reporte.xlsx";
+      a.download = "tabla.xlsx";
       a.click();
     } catch (error) {
       alert(`Hubo un error al procesar el archivo. ${error}`);
+    } finally {
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
     }
   };
 
@@ -78,8 +83,9 @@ const DarFormato: React.FC = () => {
       Dar formato
       <VisuallyHiddenInput
         type="file"
-        accept=".xlsx,.csv"
+        accept=".csv"
         onChange={handleFileChange}
+        ref={fileInputRef}
       />
     </BigButton>
   );

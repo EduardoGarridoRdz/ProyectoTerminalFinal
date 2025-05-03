@@ -77,7 +77,13 @@ class VinculacionAcadViewSet(viewsets.ModelViewSet):
         queryset = VinculacionAcad.objects.all()
         serializer_class = VinculacionAcadSerializer
 
+class HistorialSituacionViewSet(viewsets.ModelViewSet):
+        queryset = HistorialSituacion.objects.all()
+        serializer_class = HistorialSituacionSerializer
 
+class HistorialEstatusViewSet(viewsets.ModelViewSet):
+      queryset = HistorialEstatus.objects.all()
+      serializer_class = HistorialEstatusSerializer
 
 """ <----------------------- PROFESORES --------------------------> """
 class ProfesorViewSet(viewsets.ModelViewSet):
@@ -188,3 +194,51 @@ class ActividadesinactivoViewSet(viewsets.ModelViewSet):
     queryset = Actividadesinactivo.objects.all()
     serializer_class = ActividadesinactivoSerializer
 
+class ProgramaEducativoViewSet(viewsets.ModelViewSet):
+    queryset = ProgramaEducativo.objects.all()
+    serializer_class = ProgramaEducativoSerializer
+
+class SexoViewSet(viewsets.ModelViewSet):
+    queryset = Sexo.objects.all()
+    serializer_class = SexoSerializer
+
+class InformacionAdicionalViewSet(viewsets.ModelViewSet):
+    queryset = InformacionAdicional.objects.all()
+    serializer_class = InformacionAdicionalSerializer
+
+class FormacionIntegralEventoViewSet(viewsets.ModelViewSet):
+    queryset = FormacionIntegralEvento.objects.all()
+    serializer_class = FormacionIntegralEventoSerializer
+
+class ActividadVinculacionViewSet(viewsets.ModelViewSet):
+    queryset = ActividadVinculacion.objects.all()
+    serializer_class = ActividadVinculacionSerializer
+
+class ProyectoTesisViewSet(viewsets.ModelViewSet):
+    queryset = ProyectoTesis.objects.all()
+    serializer_class = ProyectoTesisSerializer
+
+class FormularioCapacitacionViewSet(viewsets.ModelViewSet):
+    queryset = FormularioCapacitacion.objects.all()
+    serializer_class = FormularioCapacitacionSerializer
+
+class ProyectoInvestigacionViewSet(viewsets.ModelViewSet):
+    queryset = ProyectoInvestigacion.objects.all()
+    serializer_class = ProyectoInvestigacionSerializer
+
+class ProductoInvestigacionViewSet(viewsets.ModelViewSet):
+    queryset = ProductoInvestigacion.objects.all()
+    serializer_class = ProductoInvestigacionSerializer
+
+""" <----------------------- Usuarios --------------------------> """
+class UsuarioViewSet(viewsets.ModelViewSet):
+      queryset = Usuario.objects.all()
+      serializer_class = UsuarioSerializer
+
+class TipoUsuarioViewSet(viewsets.ModelViewSet):
+      queryset = Tipousuarios.objects.all()
+      serializer_class = TipoUsuarioSerializer
+
+class DepartamentosViewSet(viewsets.ModelViewSet):
+      queryset = Departamento.objects.all()
+      serializer_class = DepartamentosSerializer

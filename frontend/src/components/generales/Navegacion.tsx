@@ -1,8 +1,8 @@
 import React from "react";
 import SchoolIcon from "@mui/icons-material/School";
 import Person4Icon from "@mui/icons-material/Person4";
-import SettingsIcon from "@mui/icons-material/Settings";
 import GroupIcon from "@mui/icons-material/Group";
+import ExitToAppIcon from '@mui/icons-material/ExitToApp';
 
 // Definimos el tipo para los elementos de navegación
 type HeaderItem = {
@@ -24,11 +24,12 @@ type SingleItemPadre = {
   segment: string;
   title: string;
   icon?: React.ReactNode;
-  children: SingleItemHijo;
+  children: SingleItemHijo[];
 };
 
+
 // Definimos el tipo para la navegación completa
-type Navigation = HeaderItem | DividerItem | SingleItemHijo | SingleItemPadre;
+type Navigation = (HeaderItem | DividerItem | SingleItemHijo | SingleItemPadre)[];
 
 // Función que genera y devuelve la navegación
 const getNavigation = (): Navigation => {
@@ -37,16 +38,11 @@ const getNavigation = (): Navigation => {
       kind: "header",
       title: "Menú principal",
     },
-
     {
       segment: "estudiantes",
       title: "Estudiantes",
       icon: <SchoolIcon />,
       children: [
-        {
-          segment: "dashboard-estudiantes",
-          title: "Dashboard Estudiantes",
-        },
         {
           segment: "servicios-escolares",
           title: "Servicios Escolares",
@@ -71,6 +67,10 @@ const getNavigation = (): Navigation => {
           segment: "vinculacion-universitaria",
           title: "Vinculación Universitaria",
         },
+        {
+          segment: "tutorias",
+          title: "Tutorías",
+        },
       ],
     },
 
@@ -87,7 +87,19 @@ const getNavigation = (): Navigation => {
         },
         {
           segment: "formulario",
-          title: "Formulario",
+          title: "Recursos Humanos",
+        },
+        {
+          segment: "ciencias-basicas",
+          title: "Ciencias básicas de ingeniería",
+        },
+        {
+          segment: "economia-negocios",
+          title: "Economía y Negocios",
+        },
+        {
+          segment: "turismo-sustentable",
+          title: "Turismo Sustentable, Gastronomía y Hotelería",
         },
 
         {
@@ -96,34 +108,13 @@ const getNavigation = (): Navigation => {
         },
 
         {
-          segment: "ciencias-basicas",
-          title: "Ciencias básicas de ingeniería",
-        },
-
-        {
-          segment: "turismo-sustentable",
-          title: "Turismo Sustentable, Gastronomía y Hotelería",
-        },
-
-        {
-          segment: "tutorias",
-          title: "Tutorías",
-        },
-
-        {
-          segment: "desarrollo-académico",
-          title: "Desarrollo académico",
-        },
-
-        {
-          segment: "economia-negocios",
-          title: "Economía y Negocios",
-        },
-        {
           segment: "recursos-humanos",
           title: "Recursos Humanos",
         },
-
+        {
+          segment: "desarrollo-academico",
+          title: "Desarrollo Académico",
+        },
         {
           segment: "departamento-investigacion",
           title: "Departamento de Investigacion",
@@ -136,9 +127,8 @@ const getNavigation = (): Navigation => {
     },
     {
       kind: "header",
-      title: "Configuraciones",
+      title: "Gestión de usuarios",
     },
-
     {
       segment: "administrar-usuarios",
       title: "Administrar Usuarios",
@@ -149,22 +139,23 @@ const getNavigation = (): Navigation => {
           title: "Añadir Usuario",
         },
         {
-          segment: "eliminar-usuario",
-          title: "Eliminar Ususario",
+          segment: "gestionar-usuario",
+          title: "Gestionar Ususario",
         },
       ],
     },
     {
-      segment: "configuracion",
-      title: "Configuración",
-      icon: <SettingsIcon />,
-      children: [
-        {
-          segment: "Editar cuenta",
-          title: "Editar cuenta",
-        },
-      ],
+      kind: "divider",
     },
+    {
+      kind: "header",
+      title: "Cerrar Sesión",
+    },
+    {
+      segment: "salir",
+      title: "Cerrar Sesión",
+      icon: <ExitToAppIcon />,
+    }
   ];
 };
 

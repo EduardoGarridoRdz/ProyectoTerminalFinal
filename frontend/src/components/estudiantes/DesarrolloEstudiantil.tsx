@@ -39,10 +39,8 @@ export default function ServiciosEscolares() {
         </Grid>
         <Grid container justifyContent="center">
           <iframe
-            width={iframeWidth}
-            height={iframeHeight}
             src="https://lookerstudio.google.com/embed/reporting/19b4d7b4-d026-4d42-bed0-b124173021e7/page/p_t1nudsw8qd"
-            title="Reporte Desarrollo Estudiantil"
+            title="Reporte Prácticas Profesionales"
             allowFullScreen
             style={{
               flex: 1,
@@ -51,11 +49,13 @@ export default function ServiciosEscolares() {
               height: `${iframeHeight}px`,
               position: "relative",
             }}
+            loading="lazy"
             sandbox="allow-storage-access-by-user-activation 
                     allow-scripts allow-same-origin 
                     allow-popups allow-downloads
                     allow-popups-to-escape-sandbox"
           />
+
         </Grid>
       </Grid>
     </Box>

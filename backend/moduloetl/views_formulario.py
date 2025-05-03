@@ -1,118 +1,78 @@
-from django.db.models import Value, CharField
-from django.db.models.functions import Concat
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import status
-from .models import (
-    Profesor, Proyecto, ProfesorProyecto, Investigacion, TipoProyecto, Estudios,
-    Capacitacion, FaseProyecto, TipoCapacitacion, EventoAcad
-)
-import re
-from datetime import datetime
+from .models import Profesor, Proyecto, Capacitacion, EventoAcad, FaseProyecto, TipoProyecto
+from django.utils.dateparse import parse_date
 
+# PROYECTO DE INVESTIGACION
 @api_view(['POST'])
-def guardar_formulario_unificado(request):
+def guardar_proyecto_investigacion(request):
     data = request.data
-    nombre_profesor = data.get("nombreProfesor")
+    try:
+        profesor = Profesor.objects.get(nombre=data['nombreProfesor'])
+        tipo = TipoProyecto.objects.get(tipo=data['tipoProyecto'])
 
-    if not nombre_profesor:
-        return Response({"error": "Campo 'nombreProfesor' requerido"}, status=status.HTTP_400_BAD_REQUEST)
+        proyecto = Proyecto.objects.create(
+            nombre_proyecto=data['proyectoNombre'],
+            tipo_proyecto=tipo,
+            objetivo=data.get('resultadosImpactos', '-')
+        )
 
-    # Limpiar prefijos como Dr., Mtro., etc.
-    nombre_profesor = re.sub(r'^(Dr\.|Dra\.|Mtro\.|Mtra\.)\s+', '', nombre_profesor).strip()
+        # Aquí podrías guardar en ProfesorProyecto si es necesario
 
-    # Buscar al profesor por nombre completo
-    profesor = Profesor.objects.annotate(
-        nombre_completo=Concat('nombre', Value(' '), 'apellido_pat', Value(' '), 'apellido_mat', output_field=CharField())
-    ).filter(nombre_completo__icontains=nombre_profesor).first()
+        return Response({"mensaje": "Proyecto guardado correctamente"}, status=201)
+    except Profesor.DoesNotExist:
+        return Response({"error": "Profesor no encontrado"}, status=404)
+    except TipoProyecto.DoesNotExist:
+        return Response({"error": "Tipo de proyecto no válido"}, status=400)
 
-    if not profesor:
-        return Response({"error": "Profesor no encontrado"}, status=status.HTTP_404_NOT_FOUND)
 
-    # 1. Formación Personal Académica
-    if "formacionAcademica" in data:
-        formacion = data["formacionAcademica"]
-        Estudios.objects.create(
+# FORMACION INTEGRAL (eventos internos)
+@api_view(['POST'])
+def guardar_evento_formacion_integral(request):
+    data = request.data
+    try:
+        profesor = Profesor.objects.first()  # Opcional si necesitas asociar a un profe
+        evento = EventoAcad.objects.create(
+            nombre_evento=data['nombreEvento'],
+            fecha_inicio=parse_date(data['fechaEvento']),
+            fecha_final=parse_date(data['fechaEvento']),
+            id_profesor=profesor  # opcional
+        )
+        return Response({"mensaje": "Evento académico guardado"}, status=201)
+    except Exception as e:
+        return Response({"error": str(e)}, status=400)
+
+
+# FORMULARIO DE CAPACITACION
+@api_view(['POST'])
+def guardar_capacitacion(request):
+    data = request.data
+    try:
+        profesor = Profesor.objects.get(nombre=data['nombreProfesor'])
+        capacitacion = Capacitacion.objects.create(
             id_profesor=profesor,
-            grado_actual=formacion["gradoActual"],
-            grado_estudiando=formacion["gradoEstudiando"],
-            fecha_inicio=formacion["fechaInicio"],
-            fecha_final=formacion["fechaFinal"],
-            nombre_institucion=formacion["nombreInstitucion"]
+            evento=data['evento'],
+            sede=data['sede'],
+            organizador=data['organizador'],
+            fecha_inicio=parse_date(data['fechaInicio'])
         )
-        if "fase" in formacion:
-            FaseProyecto.objects.get_or_create(fase=formacion["fase"])
+        return Response({"mensaje": "Capacitación guardada"}, status=201)
+    except Profesor.DoesNotExist:
+        return Response({"error": "Profesor no encontrado"}, status=404)
 
-    # 2. Proyecto de Investigación
-    if "proyectoInvestigacion" in data:
-        proj = data["proyectoInvestigacion"]
-        tipo = TipoProyecto.objects.filter(tipo__iexact=proj["tipoProyecto"]).first()
-        if tipo:
-            proyecto = Proyecto.objects.create(
-                nombre_proyecto=proj["proyectoNombre"],
-                tipo_proyecto=tipo,
-                objetivo=proj["resultadosImpactos"],
-                etapa="",
-                financiamiento=""
-            )
-            ProfesorProyecto.objects.create(
-                id_profesor=profesor,
-                id_proyecto=proyecto,
-                fecha_inicio=datetime.now().date(),
-                fecha_final=datetime.now().date()
-            )
 
-    # 3. Actividad de Vinculación
-    if "actividadVinculacion" in data:
-        vinc = data["actividadVinculacion"]
-        Investigacion.objects.create(
-            tipo_producto_id=1,
-            isbn="",
-            objeto_estudio=vinc["descripcionActividad"],
-            fecha_publicacion=vinc["fechaVinculacion"],
-            numero_edicion="",
-            lugar_publicacion=vinc["institucionVinculada"],
-            nombre_institucion=vinc["resultadoVinculacion"]
+# FORMULARIO VINCULACION
+@api_view(['POST'])
+def guardar_actividad_vinculacion(request):
+    data = request.data
+    try:
+        # Se puede guardar como evento_acad o crear un nuevo modelo si quieres
+        evento = EventoAcad.objects.create(
+            nombre_evento=data['descripcionActividad'],
+            fecha_inicio=parse_date(data['fechaVinculacion']),
+            fecha_final=parse_date(data['fechaVinculacion']),
         )
-
-    # 4. Dirección de Proyectos Terminales
-    if "proyectoTerminal" in data:
-        pt = data["proyectoTerminal"]
-        EventoAcad.objects.create(
-            id_profesor=profesor,
-            id_tipo_evento_id=1,
-            id_evento_subcategoria_id=1,
-            nombre_evento=pt["nombrePT"],
-            fecha_inicio=pt["fechaPT"],
-            fecha_final=pt["fechaPT"]
-        )
-
-    # 5. Actividades Anuales Académicas
-    if "actividadAnual" in data:
-        act = data["actividadAnual"]
-        Investigacion.objects.create(
-            tipo_producto_id=2,
-            isbn=act["linkProducto"],
-            objeto_estudio=act["productosAcademicos"],
-            fecha_publicacion=f"{act['anioPublicacion']}-01-01",
-            numero_edicion="",
-            lugar_publicacion=act["sedeActividad"],
-            nombre_institucion=""
-        )
-
-    # 6. Capacitación
-    if "capacitacion" in data:
-        cap = data["capacitacion"]
-        tipo_cap = TipoCapacitacion.objects.filter(tipo__iexact=cap["tipo"]).first()
-        if tipo_cap:
-            Capacitacion.objects.create(
-                id_profesor=profesor,
-                id_tipo_capacitacion=tipo_cap,
-                evento=cap["evento"],
-                sede="",
-                organizador="",
-                fecha_inicio=datetime.now().date(),
-                fecha_final=datetime.now().date()
-            )
-
-    return Response({"mensaje": "Formulario completo guardado exitosamente"}, status=status.HTTP_201_CREATED)
+        return Response({"mensaje": "Actividad de vinculación guardada"}, status=201)
+    except Exception as e:
+        return Response({"error": str(e)}, status=400)

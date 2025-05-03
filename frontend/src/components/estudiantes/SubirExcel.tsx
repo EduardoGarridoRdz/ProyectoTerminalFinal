@@ -1,7 +1,8 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import { Button } from "@mui/material";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import { styled } from "@mui/material/styles";
+import CircularProgress from '@mui/material/CircularProgress';
 
 // Estilos del botón //
 const VisuallyHiddenInput = styled("input")({
@@ -23,16 +24,20 @@ const BigButton = styled(Button)({
 });
 
 const SubirExcel: React.FC = () => {
+  const [loading, setLoading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
   // Función para mandar el archivo al backend //
-  const handleFileChange = async (
-    event: React.ChangeEvent<HTMLInputElement>
-  ) => {
+  const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const archivo = event.target.files?.[0];
+
     // Se comprueba si se ha seleccionado un archivo //
     if (!archivo) {
       alert("Por favor, selecciona un archivo.");
       return;
     }
+
+    setLoading(true)
 
     try {
       // Se crea un objeto FormData //
@@ -63,23 +68,35 @@ const SubirExcel: React.FC = () => {
       }
     } catch (error) {
       alert(`Hubo un error al procesar el archivo. ${error}`);
+    } finally {
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
+      setLoading(false)
     }
   };
 
   return (
-    <BigButton
-      component="label"
-      variant="contained"
-      startIcon={<CloudUploadIcon />}
-      tabIndex={-1}
-    >
-      Subir archivos
-      <VisuallyHiddenInput
-        type="file"
-        accept=".xlsx"
-        onChange={handleFileChange}
-      />
-    </BigButton>
+    <>
+      <BigButton
+        component="label"
+        variant="contained"
+        startIcon={<CloudUploadIcon />}
+      >
+        Subir archivos
+        <VisuallyHiddenInput
+          type="file"
+          accept=".xlsx"
+          onChange={handleFileChange}
+          ref={fileInputRef}
+        />
+      </BigButton>
+      {
+        loading && (
+          <CircularProgress />
+        )
+      }
+    </>
   );
 };
 

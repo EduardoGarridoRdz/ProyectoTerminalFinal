@@ -25,14 +25,11 @@ export default function ServiciosEscolares() {
   // Ajustamos las dimensiones del iframe con márgenes
   const iframeWidth = Math.min(windowSize.width * 0.92, 1920); // 95% del ancho o máximo 1800px
   const iframeHeight = Math.min(windowSize.height * 0.9, 1080); // 90% del alto o máximo 1000px
+
   return (
     <Box>
       <Grid container spacing={2} sx={{ pl: 2, pt: 2 }}>
-        <Grid
-          container
-          columnSpacing={10}
-          sx={{ pl: windowSize.width / 26, pt: 1 }}
-        >
+        <Grid container columnSpacing={10} sx={{ pl: windowSize.width / 26, pt: 1 }}>
           <SubirExcel />
           <DarFormato />
         </Grid>

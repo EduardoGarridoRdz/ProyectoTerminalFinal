@@ -26,6 +26,7 @@ SECRET_KEY = 'django-insecure-gi4ir!b@%-r16-=9n0v&kjsepp#fap8xjo^g&w4k%ffk%+8%gf
 DEBUG = True
 
 ALLOWED_HOSTS = [
+    '*'
 ]
 
 # Application definition
@@ -39,7 +40,6 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'corsheaders',
     'rest_framework',
-    'coreapi',
     'moduloetl',
     'pandas',
     'openpyxl',
@@ -57,8 +57,11 @@ MIDDLEWARE = [
 ]
 
 CORS_ALLOWED_ORIGINS = [ 
-    'http://localhost:5173'
+    'http://localhost:5173',
+    'http://192.168.0.112:5173'
 ]
+
+
 
 ROOT_URLCONF = 'backend.urls'
 
@@ -89,8 +92,8 @@ DATABASES = {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'planeacionv2',  # Nombre de la base de datos
         'USER': 'postgres',  # Nombre de usuario
-        'PASSWORD': 'equipo1',  # Contraseña
-        'HOST': 'localhost',  # Host (usualmente 'localhost' o '127.0.0.1')
+        'PASSWORD': 'equipo1',  # ContraseÃ±a
+        'HOST': '18.217.162.228',  # Host (usualmente 'localhost' o '127.0.0.1')
         'PORT': '5432',  # Puerto de PostgreSQL (por defecto es 5432)
     }
 }

@@ -1,247 +1,207 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
-  TextField,
-  Button,
-  Grid,
-  Container,
-  Paper,
-  Typography,
-  Autocomplete,
-  MenuItem,
-  FormControl,
-  InputLabel,
-  Select,
-  SelectChangeEvent,
+    TextField,
+    Button,
+    Typography,
+    Box,
+    Container,
+    Paper,
+    Grid,
+    FormControl,
+    InputLabel,
+    Select,
+    MenuItem,
+    Snackbar,
+    Alert,
+    SelectChangeEvent,
 } from "@mui/material";
 
-const nombresProfesores = [
-  "Dr. Mauro Felipe Berumen Calderón",
-  "Dr. César Yáñez Santamaría",
-  "Dra. Angelica Sterling Zozoaga",
-  "Dr. Edgar Fernando Peña Torres",
-  "Dr. Héctor Santana Duarte",
-  "Mtra. Guadalupe Carolina Moreno Ortíz",
-  "Mtra. Ana Victoria Flores Vega",
-  "Mtro. Juan Manuel Carvajal Sánchez",
-  "Mtra. Elena Xitlali Gamarra Hernández",
-  "Mtro. Guillermo Álvarez Estrada",
-  "Mtro. Bernardo Lopez Rivera",
-  "Mtra. Sonia Beatriz Pacheco Castro",
-  "Dr. José Francisco Domínguez Estrada",
-  "Dr. Ricardo Sonda de la Rosa",
-  "Dr. Pedro Moncada Jiménez",
-  "Dr. Ventura Enrique Mota Flores",
-  "Dr. Oswaldo Gallegos Jiménez",
-  "Dr. Jorge Mendoza Lara",
-  "Dra. Sandra Guerra Mondragon",
-  "Mtra. Damayanti Estolano Cristerna",
-  "Mtra. Consepción Escalona Hernández",
-  "Mtra. Claudia Inés Martinez",
-  "Dr. Juan Bautista Boggio Vázquez",
-  "Dr. Abelardo Castillo Galeana",
-  "Dra. Rosiluz Ceballos Povedano",
-  "Dr. Enrique Corona Sandoval",
-  "Mtra. Wendy Sebastiana Hernández Del Puerto",
-  "Dra. Lorena Hernández Von Wobeser",
-  "Mtro. Francisco José May Hernández",
-  "Mtro. Farid Alfonso Pool Estrada",
-  "Dra. Carmen Lilia Cervantes Bello",
-  "Dr. Sergio Lagunas Puls",
-  "Dra. Elda Leticia León Vite",
-  "Dra. Christine Elizabeth Mccoy Cador",
-  "Dr. Miguel Ángel Olivares Urbina",
-  "Mtra. Brenda Lizeth Soto Pérez",
-  "Mtro. Jorge Vallejo Filoteo",
-  "Dra. Lucila Zárraga Cano",
-  "Dr. Rodrigo Leonardo Guillen Breton",
-  "Dr. Juan Francisco Bárcenas Graniel",
-  "Dra. Estela Cerezo Acevedo",
-  "Dr. Víctor Manuel Romero Medina",
-  "Dra. Laura Margarita Hernández Terrones",
-  "Mtra. Nancy Aguas García",
-  "Dra. Jessica Carmin Mendiola Fuentes",
-  "Dra. Erika Zavala López",
-  "Dr. Héctor Fernando Gómez García",
-  "Dr. Ismael Domínguez Jiménez",
-  "Dr. César Hernández Brito",
-  "Dra. Candelaria Elizabeth Sansores Pérez",
-  "Mtro. Francisco Manzano Pinzón",
-  "Dra. Marina Isabel García Rosas",
-  "Mtra. Diana del Pilar Cobos del Angel",
-  "Dr. Antonio José Sucre Salas",
-  "Dra. Mirbella Gallareta Negrón",
-  "Dr. Alejandro Charbel Cárdenas León",
-  "Dr. Juan Felipe Pérez Vázquez",
-  "Mtro. Nicolás Francisco Mateo Díaz",
-  "Mtro. Jarmen Said Virgen Suárez",
-  "Dr. Francisco López Monzalvo",
-  "Dr. Mijaíl Armenta Aranceta",
-  "Dr. Víctor Cantero Flores",
-  "Mtro. Victor Manuel Peralta Del Riego",
-  "Dra. Alejandra Cazal Ferreira",
-  "Mtro. Eduardo Suárez Díaz Barriga",
-  "Dra. María del Pilar Jiménez Márquez",
-  "Mtro. Roberto Parra Dorantes",
-  "Dra. Sabrina Ivonne Rodríguez Ogaz",
-  "Mtra. Graciela Vázquez Flores",
-  "Mtra. Pilivet Aguiar Alayola",
-  "Dr. Oscar Miguel Reyes Hernández",
-  "Dra. Minerva Alavez San Pedro",
-  "Dra. Libertad Fidelina Díaz Molina",
-  "Dr. José Felipe Reyes Miranda",
-];
+import axios from "axios";
 
-const tiposProyecto = ["Investigación", "Artículo", "Desarrollo tecnológico"];
+const ProyectoInvestigacion: React.FC = () => {
+    const [openSnackbar, setOpenSnackbar] = useState(false);
+    const [snackbarMessage, setSnackbarMessage] = useState("");
+    const [formData, setFormData] = useState({
+        nombreProyecto: "",
+        objetivo: "",
+        participantes: "",
+        institucionColaboradora: "",
+        resultadosImpactos: "",
+    });
 
-interface FormData {
-  nombreProfesor: string;
-  proyectoNombre: string;
-  tipoProyecto: string;
-  colaboradores: string;
-  institucionColaboradora: string;
-  resultadosImpactos: string;
-}
+    const [nombresProfesores, setnombresProfesores] = useState<
+        { id: number; nombre: string }[]
+    >([]);
 
-const ProyectoInvestigacionForm = () => {
-  const [formData, setFormData] = useState<FormData>({
-    nombreProfesor: "",
-    proyectoNombre: "",
-    tipoProyecto: "",
-    colaboradores: "",
-    institucionColaboradora: "",
-    resultadosImpactos: "",
-  });
+    useEffect(() => {
+        axios
+            .get("http://127.0.0.1:8000/api/profesor/")
+            .then((res) => {
+                const data = res.data.map((prof: any) => ({
+                    id: prof.id_profesor,
+                    nombre: prof.nombre_profesor,
+                    apellidoPatProfesor: prof.apellido_pat_profesor,
+                    apellidoMatProfesor: prof.apellido_mat_profesor,
+                }));
+                setnombresProfesores(data);
+            })
+            .catch((err) => {
+                console.error("Error al obtener profesores", err);
+            });
+    }, []);
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
-  };
+    const handleChange = (
+        e:
+            | React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+            | SelectChangeEvent
+    ) => {
+        const { name, value } = e.target;
+        setFormData({ ...formData, [name]: value });
+    };
 
-  const handleSelectChange = (e: SelectChangeEvent, field: keyof FormData) => {
-    setFormData({ ...formData, [field]: e.target.value });
-  };
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+        const id_profesor = nombresProfesores.find(
+            (d) => d.nombre === formData.participantes
+        )?.id;
 
-    try {
-      const response = await fetch("http://127.0.0.1:8000/api/proyectos-investigacion/", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
-      });
-
-      if (response.ok) {
-        alert("Proyecto enviado correctamente");
-        setFormData({
-          nombreProfesor: "",
-          proyectoNombre: "",
-          tipoProyecto: "",
-          colaboradores: "",
-          institucionColaboradora: "",
-          resultadosImpactos: "",
-        });
-      } else {
-        alert("Error al enviar el proyecto");
-      }
-    } catch (error) {
-      console.error("Error:", error);
-      alert("Error al enviar el proyecto");
-    }
-  };
-
-  return (
-    <Container maxWidth="md">
-      <Paper elevation={3} sx={{ p: 4 }}>
-        <Typography variant="h5" align="center" gutterBottom>
-          Proyecto de Investigación
-        </Typography>
-        <form onSubmit={handleSubmit}>
-          <Grid container spacing={2} direction="column">
-            <Grid item xs={12}>
-              <Autocomplete
-                options={nombresProfesores}
-                value={formData.nombreProfesor}
-                onChange={(e, newValue) =>
-                  setFormData({ ...formData, nombreProfesor: newValue || "" })
+        const payload = {
+            nombre_proyecto: formData.nombreProyecto,
+            objetivo: formData.objetivo,
+            participantes: id_profesor,
+            institucion_colaboradora: formData.institucionColaboradora,
+            resultados_impactos: formData.resultadosImpactos,
+        };
+        try {
+            const response = await fetch(
+                "http://127.0.0.1:8000/api/proyecto_investigacion/",
+                {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify(payload),
                 }
-                renderInput={(params) => (
-                  <TextField {...params} label="Nombre del Profesor" required fullWidth />
-                )}
-              />
-            </Grid>
+            );
+            if (!response.ok) {
+                const errorText = await response.text();
+                throw new Error(`Error al enviar el formulario: ${errorText}`);
+            }
+            setSnackbarMessage("Información registrada correctamente.");
+            setOpenSnackbar(true);
+            setFormData({
+                nombreProyecto: "",
+                objetivo: "",
+                participantes: "",
+                institucionColaboradora: "",
+                resultadosImpactos: "",
+            });
+        } catch (err) {
+            console.error("Error:", err);
+        }
+    };
 
-            <Grid item xs={12}>
-              <TextField
-                label="Nombre del Proyecto"
-                name="proyectoNombre"
-                value={formData.proyectoNombre}
-                onChange={handleInputChange}
-                fullWidth
-                required
-              />
-            </Grid>
+    return (
+        <Container maxWidth="md">
+            <Paper sx={{ p: 4 }}>
+                <Typography variant="h6" gutterBottom align="center">
+                    <strong>Proyecto de Investigación</strong>
+                </Typography>
+                <br />
+                <form onSubmit={handleSubmit}>
+                    <Grid container spacing={2}>
 
-            <Grid item xs={12}>
-              <FormControl fullWidth>
-                <InputLabel id="tipoProyectoLabel">Tipo de Proyecto</InputLabel>
-                <Select
-                  labelId="tipoProyectoLabel"
-                  label="Tipo de Proyecto"
-                  value={formData.tipoProyecto}
-                  onChange={(e) => handleSelectChange(e, "tipoProyecto")}
+                        <Grid item xs={12}>
+                            <TextField
+                                label="Nombre del Proyecto (nombre completo, no sólo siglas)"
+                                name="nombreProyecto"
+                                value={formData.nombreProyecto}
+                                onChange={handleChange}
+                                fullWidth
+                                required
+                            />
+                        </Grid>
+
+                        <Grid item xs={12}>
+                            <TextField
+                                label="Objetivo"
+                                name="objetivo"
+                                value={formData.objetivo}
+                                onChange={handleChange}
+                                fullWidth
+                                multiline
+                                required
+                            />
+                        </Grid>
+
+                        <Grid item xs={12}>
+                            <FormControl fullWidth required>
+                                <InputLabel>PTC UNICARIBE Participante(s)</InputLabel>
+                                <Select
+                                    name="participantes"
+                                    value={formData.participantes}
+                                    label="PTC UNICARIBE Participante(s)"
+                                    onChange={handleChange}
+                                >
+                                    {nombresProfesores.map((prof) => (
+                                        <MenuItem key={prof.id} value={prof.nombre}>
+                                            {`${prof.nombre} ${prof.apellidoPatProfesor} ${prof.apellidoMatProfesor}`}
+                                        </MenuItem>
+                                    ))}
+                                </Select>
+                            </FormControl>
+                        </Grid>
+
+                        <Grid item xs={12}>
+                            <TextField
+                                label="IES y/o Red en colaboración (nombre completo)"
+                                name="institucionColaboradora"
+                                value={formData.institucionColaboradora}
+                                onChange={handleChange}
+                                fullWidth
+                                required
+                            />
+                        </Grid>
+
+                        <Grid item xs={12}>
+                            <TextField
+                                label="Resultados / Impactos"
+                                name="resultadosImpactos"
+                                value={formData.resultadosImpactos}
+                                onChange={handleChange}
+                                fullWidth
+                                multiline
+                                required
+                            />
+                        </Grid>
+
+                        <Grid item xs={12}>
+                            <Box textAlign="center">
+                                <Button type="submit" variant="contained">
+                                    Enviar Información
+                                </Button>
+                            </Box>
+                        </Grid>
+                    </Grid>
+                </form>
+            </Paper>
+            <Snackbar
+                open={openSnackbar}
+                autoHideDuration={6000}
+                onClose={() => setOpenSnackbar(false)}
+                anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+            >
+                <Alert
+                    onClose={() => setOpenSnackbar(false)}
+                    severity="success"
+                    sx={{ width: "100%" }}
                 >
-                  {tiposProyecto.map((tipo) => (
-                    <MenuItem key={tipo} value={tipo}>
-                      {tipo}
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
-            </Grid>
-
-            <Grid item xs={12}>
-              <TextField
-                label="Colaboradores"
-                name="colaboradores"
-                value={formData.colaboradores}
-                onChange={handleInputChange}
-                fullWidth
-              />
-            </Grid>
-
-            <Grid item xs={12}>
-              <TextField
-                label="Institución Colaboradora"
-                name="institucionColaboradora"
-                value={formData.institucionColaboradora}
-                onChange={handleInputChange}
-                fullWidth
-              />
-            </Grid>
-
-            <Grid item xs={12}>
-              <TextField
-                label="Resultados o Impacto"
-                name="resultadosImpactos"
-                value={formData.resultadosImpactos}
-                onChange={handleInputChange}
-                multiline
-                rows={4}
-                fullWidth
-              />
-            </Grid>
-
-            <Grid item xs={12}>
-              <Button type="submit" variant="contained" color="primary" fullWidth>
-                Enviar Proyecto
-              </Button>
-            </Grid>
-          </Grid>
-        </form>
-      </Paper>
-    </Container>
-  );
+                    {snackbarMessage}
+                </Alert>
+            </Snackbar>
+        </Container>
+    );
 };
 
-export default ProyectoInvestigacionForm;
+export default ProyectoInvestigacion;
