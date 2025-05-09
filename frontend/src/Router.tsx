@@ -2,7 +2,7 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import LoginSistema from "./components/generales/LoginSistema" // Página de login
 import PaginaInicio from "./components/generales/PaginaInicio"; // Página de inicio
 import ProtectedRoute from "./ProtectorRutas"; // Componente para proteger rutas
-import Formularios from "./components/generales/formularios";
+import Formularios from "./components/generales/Formularios";
 
 
 function AppRouter() {

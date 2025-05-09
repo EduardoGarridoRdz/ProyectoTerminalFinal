@@ -570,7 +570,7 @@ class TipoProducto(models.Model):
 
 class TipoProfesor(models.Model):
     id_tipo_profesor = models.AutoField(primary_key=True)
-    tipo_profesor = models.IntegerField()
+    tipo_profesor = models.CharField(max_length=255)
 
     def __str__(self):
         return str(self.tipo_profesor)

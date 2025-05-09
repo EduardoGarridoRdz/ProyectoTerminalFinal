@@ -65,14 +65,7 @@ const getNavigationProfesores = (): Navigation => {
                     segment: "desarrollo-humano",
                     title: "Desarrollo Humano",
                 },
-                {
-                    segment: "desarrollo-academico",
-                    title: "Desarrollo Académico",
-                },
-                {
-                    segment: "departamento-investigacion",
-                    title: "Departamento de Investigacion",
-                },
+                
             ],
         },
 

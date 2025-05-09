@@ -71,100 +71,159 @@ function DemoPageContent({ pathname }: { pathname: string }) {
         <>
             {pathname === "/profesores/formulario" && <Formulario />}
 
-            {pathname === "/profesores/ciencias-basicas" && (
-                <Box sx={{ width: "100%" }} key={pathname}>
-                    <Tabs
-                        value={tabIndex}
-                        onChange={(_event: React.SyntheticEvent, newValue: number) => setTabIndex(newValue)}
-                        centered
-                    >
-                        <Tab label="Formación Integral" />
-                        <Tab label="Actividad de Vinculación" />
-                        <Tab label="Dirección de Tesis" />
-                    </Tabs>
-                    <Box sx={{ mt: 2 }}>
-                        {tabIndex === 0 && <Personal departamento={currentDepartamento} />}
-                        {tabIndex === 1 && <Vinculacion departamento={currentDepartamento} />}
-                        {tabIndex === 2 && <Direccion departamento={currentDepartamento} />}
-                    </Box>
-                </Box>
-            )}
 
-            {pathname === "/profesores/economia-negocios" && (
+
+
+
+
+
+            {pathname === "/profesores/ciencias-basicas" && (
+  <Box sx={{ width: "100%" }} key={pathname}>
+    <Tabs
+      value={tabIndex}
+      onChange={(_event: React.SyntheticEvent, newValue: number) => setTabIndex(newValue)}
+      variant="scrollable"
+      scrollButtons="auto"
+      aria-label="Tabs scrollable"
+    >
+      <Tab label="Formación Integral" />
+      <Tab label="Actividad de Vinculación" />
+      <Tab label="Dirección de Tesis" />
+      <Tab label="Formación Personal" />
+      <Tab label="Proyecto de Investigación" />
+      <Tab label="Producto de Investigación" />
+    </Tabs>
+
+    <Box sx={{ mt: 2 }}>
+      {tabIndex === 0 && <Personal departamento={currentDepartamento} />}
+      {tabIndex === 1 && <Vinculacion departamento={currentDepartamento} />}
+      {tabIndex === 2 && <Direccion departamento={currentDepartamento} />}
+      {tabIndex === 3 && <Formacion departamento={currentDepartamento} />}
+      {tabIndex === 4 && <Proyecto departamento={currentDepartamento} />}
+      {tabIndex === 5 && <Producto departamento={currentDepartamento} />}
+    </Box>
+  </Box>
+)}
+
+
+
+
+
+
+
+
+ 
+
+               
+              {pathname === "/profesores/economia-negocios" && (
                 <Box sx={{ width: "100%" }} key={pathname}>
-                    <Tabs
-                        value={tabIndex}
-                        onChange={(_event: React.SyntheticEvent, newValue: number) => setTabIndex(newValue)}
-                        centered
-                    >
-                        <Tab label="Formación Integral" />
-                        <Tab label="Actividad de Vinculación" />
-                        <Tab label="Dirección de Tesis" />
-                    </Tabs>
-                    <Box sx={{ mt: 2 }}>
-                        {tabIndex === 0 && <Personal departamento={currentDepartamento} />}
-                        {tabIndex === 1 && <Vinculacion departamento={currentDepartamento} />}
-                        {tabIndex === 2 && <Direccion departamento={currentDepartamento} />}
-                    </Box>
+                  <Tabs
+                    value={tabIndex}
+                    onChange={(_event: React.SyntheticEvent, newValue: number) => setTabIndex(newValue)}
+                    variant="scrollable"
+                    scrollButtons="auto"
+                    aria-label="Tabs scrollable"
+                  >
+                    <Tab label="Formación Integral" />
+                    <Tab label="Actividad de Vinculación" />
+                    <Tab label="Dirección de Tesis" />
+                    <Tab label="Formación Personal" />
+                    <Tab label="Proyecto de Investigación" />
+                    <Tab label="Producto de Investigación" />
+                  </Tabs>
+              
+                  <Box sx={{ mt: 2 }}>
+                    {tabIndex === 0 && <Personal departamento={currentDepartamento} />}
+                    {tabIndex === 1 && <Vinculacion departamento={currentDepartamento} />}
+                    {tabIndex === 2 && <Direccion departamento={currentDepartamento} />}
+                    {tabIndex === 3 && <Formacion departamento={currentDepartamento} />}
+                    {tabIndex === 4 && <Proyecto departamento={currentDepartamento} />}
+                    {tabIndex === 5 && <Producto departamento={currentDepartamento} />}
+                  </Box>
                 </Box>
-            )}
+              )}
+              
+              
+
+
+
+
+
+
+
 
             {pathname === "/profesores/turismo-sustentable" && (
-                <Box sx={{ width: "100%" }} key={pathname}>
-                    <Tabs
-                        value={tabIndex}
-                        onChange={(_event: React.SyntheticEvent, newValue: number) => setTabIndex(newValue)}
-                        centered
-                    >
-                        <Tab label="Formación Integral" departamento={currentDepartamento} />
-                        <Tab label="Actividad de Vinculación" departamento={currentDepartamento} />
-                        <Tab label="Dirección de Tesis" departamento={currentDepartamento} />
-                    </Tabs>
-                    <Box sx={{ mt: 2 }}>
-                        {tabIndex === 0 && <Personal departamento={currentDepartamento} />}
-                        {tabIndex === 1 && <Vinculacion departamento={currentDepartamento} />}
-                        {tabIndex === 2 && <Direccion departamento={currentDepartamento} />}
-                    </Box>
-                </Box>
-            )}
+                         
+                             <Box sx={{ width: "100%" }} key={pathname}>
+                              <Tabs
+                                value={tabIndex}
+                                onChange={(_event: React.SyntheticEvent, newValue: number) => setTabIndex(newValue)}
+                                variant="scrollable"
+                                scrollButtons="auto"
+                                aria-label="Tabs scrollable"
+                              >
+                                <Tab label="Formación Integral" />
+                                <Tab label="Actividad de Vinculación" />
+                                <Tab label="Dirección de Tesis" />
+                                <Tab label="Formación Personal" />
+                                <Tab label="Proyecto de Investigación" />
+                                <Tab label="Producto de Investigación" />
+                              </Tabs>
+                          
+                              <Box sx={{ mt: 2 }}>
+                                {tabIndex === 0 && <Personal departamento={currentDepartamento} />}
+                                {tabIndex === 1 && <Vinculacion departamento={currentDepartamento} />}
+                                {tabIndex === 2 && <Direccion departamento={currentDepartamento} />}
+                                {tabIndex === 3 && <Formacion departamento={currentDepartamento} />}
+                                {tabIndex === 4 && <Proyecto departamento={currentDepartamento} />}
+                                {tabIndex === 5 && <Producto departamento={currentDepartamento} />}
+                              </Box>
+                            </Box>
+                          )}
+                          
+
+
+
+
+
+
+
+            
 
             {pathname === "/profesores/desarrollo-humano" && (
-                <Box sx={{ width: "100%" }} key={pathname}>
-                    <Tabs
-                        value={tabIndex}
-                        onChange={(_event: React.SyntheticEvent, newValue: number) => setTabIndex(newValue)}
-                        centered
-                    >
-                        <Tab label="Formación Integral" />
-                        <Tab label="Actividad de Vinculación" />
-                        <Tab label="Dirección de Tesis" />
-                    </Tabs>
-                    <Box sx={{ mt: 2 }}>
-                        {tabIndex === 0 && <Personal departamento={currentDepartamento} />}
-                        {tabIndex === 1 && <Vinculacion departamento={currentDepartamento} />}
-                        {tabIndex === 2 && <Direccion departamento={currentDepartamento} />}
-                    </Box>
-                </Box>
-            )}
+                                         <Box sx={{ width: "100%" }} key={pathname}>
+                                         <Tabs
+                                           value={tabIndex}
+                                           onChange={(_event: React.SyntheticEvent, newValue: number) => setTabIndex(newValue)}
+                                           variant="scrollable"
+                                           scrollButtons="auto"
+                                           aria-label="Tabs scrollable"
+                                         >
+                                           <Tab label="Formación Integral" />
+                                           <Tab label="Actividad de Vinculación" />
+                                           <Tab label="Dirección de Tesis" />
+                                           <Tab label="Formación Personal" />
+                                           <Tab label="Proyecto de Investigación" />
+                                           <Tab label="Producto de Investigación" />
+                                         </Tabs>
+                                     
+                                         <Box sx={{ mt: 2 }}>
+                                           {tabIndex === 0 && <Personal departamento={currentDepartamento} />}
+                                           {tabIndex === 1 && <Vinculacion departamento={currentDepartamento} />}
+                                           {tabIndex === 2 && <Direccion departamento={currentDepartamento} />}
+                                           {tabIndex === 3 && <Formacion departamento={currentDepartamento} />}
+                                           {tabIndex === 4 && <Proyecto departamento={currentDepartamento} />}
+                                           {tabIndex === 5 && <Producto departamento={currentDepartamento} />}
+                                         </Box>
+                                       </Box>
+                                     )}
+                                     
+           
 
-            {pathname === "/profesores/desarrollo-academico" && <Formacion />}
 
-            {pathname === "/profesores/departamento-investigacion" && (
-                <Box sx={{ width: "100%" }} key={pathname}>
-                    <Tabs
-                        value={tabIndex}
-                        onChange={(_event: React.SyntheticEvent, newValue: number) => setTabIndex(newValue)}
-                        centered
-                    >
-                        <Tab label="Proyecto de Investigación" />
-                        <Tab label="Producto de Investigación" />
-                    </Tabs>
-                    <Box sx={{ mt: 2 }}>
-                        {tabIndex === 0 && <Proyecto departamento={currentDepartamento} />}
-                        {tabIndex === 1 && <Producto departamento={currentDepartamento} />}
-                    </Box>
-                </Box>
-            )}
+
+
+
 
         </>
     );
